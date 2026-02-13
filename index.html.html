@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>استبيان دراسة Seen</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef2f3; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
+        .lang-btn { padding: 15px 30px; font-size: 18px; cursor: pointer; border: none; border-radius: 8px; margin: 10px; transition: 0.3s; }
+        .en-btn { background: #007bff; color: white; }
+        .ar-btn { background: #28a745; color: white; }
+        form { display: none; text-align: right; direction: rtl; }
+        .en-mode { direction: ltr; text-align: left; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button[type="submit"] { width: 100%; padding: 15px; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="choice">
+        <h2>Choose Language / اختر اللغة</h2>
+        <button class="lang-btn en-btn" onclick="startSurvey('en')">English</button>
+        <button class="lang-btn ar-btn" onclick="startSurvey('ar')">العربية</button>
+    </div>
+
+    <form id="surveyForm">
+        <input type="hidden" name="lang" id="langInput">
+        <h2 id="title"></h2>
+        
+        <label id="labelAge">العمر / Age</label>
+        <select name="age">
+            <option>18–24</option><option>25–34</option><option>35–44</option><option>45+</option>
+        </select>
+
+        <label id="labelCountry">البلد / Country</label>
+        <input type="text" name="country" required>
+
+        <label id="labelSeen">هل تفعل علامة القراءة؟ / Keep Seen ON?</label>
+        <select name="receipts">
+            <option>Yes / نعم</option><option>No / لا</option><option>Sometimes / أحياناً</option>
+        </select>
+
+        <hr>
+        <p id="scenarioText"><strong>الموقف:</strong> صديق مقرب قرأ رسالتك ولم يرد لمدة 6 ساعات.</p>
+        
+        <label id="labelFeel">بماذا تشعر؟ / How do you feel?</label>
+        <select name="feeling" id="feelingSelect"></select>
+
+        <label id="labelWhy">لماذا؟ / Why?</label>
+        <textarea name="why" rows="3"></textarea>
+
+        <button type="submit" id="submitBtn">إرسال / Submit</button>
+    </form>
+</div>
+
+<script>
+    // 1. تعريف الرابط بشكل صحيح مع علامة اليساوي والاقتباس
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzR2W27fmcw38H-h4wBquVGZg9TevDPdbAwL6RsHKwsAd0wzwUb8T-YPPFG-NseHtgP7A/exec';
+    
+    // 2. تعريف متغير الفورم (هذا ما كان مفقوداً في النسخة الأخيرة وتسبب بالشاشة البيضاء)
+    const form = document.getElementById('surveyForm');
+
+    function startSurvey(lang) {
+        document.getElementById('choice').style.display = 'none';
+        form.style.display = 'block';
+        document.getElementById('langInput').value = lang;
+
+        if(lang === 'ar') {
+            document.getElementById('title').innerText = "دراسة علامة القراءة (Seen)";
+            document.getElementById('feelingSelect').innerHTML = '<option>منزعج</option><option>عادي</option><option>قلق</option><option>مجروح</option>';
+            document.getElementById('submitBtn').innerText = "إرسال الإجابة";
+        } else {
+            form.classList.add('en-mode');
+            document.getElementById('title').innerText = "Read Receipts Study";
+            document.getElementById('feelingSelect').innerHTML = '<option>Annoyed</option><option>Neutral</option><option>Anxious</option><option>Hurt</option>';
+            document.getElementById('submitBtn').innerText = "Submit Response";
+            document.getElementById('scenarioText').innerText = "Scenario: A close friend reads your message but no reply for 6 hours.";
+        }
+    }
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerText = "...جاري الإرسال / Sending...";
+        
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                alert('تم الاستلام بنجاح! شكراً لك.');
+                location.reload();
+            })
+            .catch(error => {
+                alert('خطأ! تأكد من اتصالك بالإنترنت.');
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerText = "إرسال / Submit";
+            });
+    });
+</script>
+
+</body>
+</html>
